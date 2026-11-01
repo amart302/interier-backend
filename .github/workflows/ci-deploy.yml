@@ -1,0 +1,70 @@
+name: CI and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check lint
+        run: npm run lint
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Build application
+        run: npm run build
+
+  deploy:
+    name: Deploy Application
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: interior-production
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+
+            echo "Starting backend deployment..."
+            cd /opt/interior-backend
+
+            echo "Pulling latest changes..."
+            git pull origin main
+
+            echo "Building and starting Docker containers..."
+            docker compose up -d --build
+
+            echo "Deployment command completed!"
