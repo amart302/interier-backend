@@ -1,5 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import type { ServiceMessageResponse } from '@/common/types/service-response.types';
 
@@ -18,6 +23,16 @@ export class AppController {
       example: {
         success: true,
         message: 'Hello World!',
+      },
+    },
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Внутренняя ошибка сервера',
+    schema: {
+      example: {
+        success: false,
+        statusCode: 500,
+        message: 'Внутренняя ошибка сервера',
       },
     },
   })
