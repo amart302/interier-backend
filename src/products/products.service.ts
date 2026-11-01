@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PaginatedResult } from '@/common/types/pagination.types';
 import { ServiceDataResponse } from '@/common/types/service-response.types';
@@ -6,8 +11,11 @@ import { Prisma } from '@/generated/prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { FindAllProductsDto } from './dto/find-all-products.dto';
-import { productCardSelect } from './selects/product.selects';
-import { ProductCard } from './types/product.types';
+import {
+  productCardSelect,
+  productDetailsSelect,
+} from './selects/product.selects';
+import { ProductCard, ProductDetails } from './types/product.types';
 
 @Injectable()
 export class ProductsService {
@@ -93,7 +101,25 @@ export class ProductsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number): Promise<ServiceDataResponse<ProductDetails>> {
+    this.logger.log(`Product lookup started (id=${id})`);
+
+    const product = await this.prismaService.product.findUnique({
+      where: { id },
+      select: productDetailsSelect,
+    });
+
+    if (!product) {
+      this.logger.warn(`Product lookup failed: product not found (id=${id})`);
+
+      throw new NotFoundException('Товар не найден');
+    }
+
+    this.logger.log(`Product lookup completed successfully (id=${id})`);
+
+    return {
+      message: 'Товар успешно получен',
+      data: product,
+    };
   }
 }
