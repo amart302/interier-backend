@@ -16,8 +16,6 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
-  app.setGlobalPrefix('api');
-
   app.enableCors({
     origin: [
       'http://localhost:3000',
