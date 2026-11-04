@@ -1,6 +1,18 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -9,11 +21,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { Auth } from '@/common/decorators/auth.decorator';
+
 import {
   productCardExample,
   productDetailsExample,
 } from './docs/product.examples';
+import { CreateProductDto } from './dto/create-product.dto';
 import { FindAllProductsDto } from './dto/find-all-products.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
 
 @ApiTags('Products')
@@ -131,5 +147,83 @@ export class ProductsController {
   })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
+  }
+  @Post()
+  @Auth()
+  @ApiOperation({ summary: 'Создать товар' })
+  @ApiCreatedResponse({
+    description: 'Товар успешно создан',
+    schema: {
+      example: {
+        success: true,
+        message: 'Товар успешно создан',
+        data: productDetailsExample,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Некорректные данные или ID товара, либо подкатегория не принадлежит категории',
+  })
+  @ApiNotFoundResponse({
+    description: 'Товар, категория или подкатегория не найдены',
+  })
+  @ApiConflictResponse({
+    description: 'Товар с таким URL источника уже существует',
+  })
+  create(@Body() dto: CreateProductDto) {
+    return this.productsService.create(dto);
+  }
+
+  @Patch(':id')
+  @Auth()
+  @ApiOperation({ summary: 'Обновить товар' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    example: 1,
+    description: 'Целочисленный ID товара',
+  })
+  @ApiOkResponse({
+    description: 'Товар успешно обновлен',
+    schema: {
+      example: {
+        success: true,
+        message: 'Товар успешно обновлен',
+        data: productDetailsExample,
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Некорректные данные или ID товара, либо подкатегория не принадлежит категории',
+  })
+  @ApiNotFoundResponse({
+    description: 'Товар, категория или подкатегория не найдены',
+  })
+  @ApiConflictResponse({
+    description: 'Товар с таким URL источника уже существует',
+  })
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProductDto) {
+    return this.productsService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Auth()
+  @ApiOperation({ summary: 'Удалить товар' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    example: 1,
+    description: 'Целочисленный ID товара',
+  })
+  @ApiOkResponse({
+    description: 'Товар успешно удален',
+    schema: { example: { success: true, message: 'Товар успешно удален' } },
+  })
+  @ApiBadRequestResponse({ description: 'Некорректные данные или ID товара' })
+  @ApiNotFoundResponse({ description: 'Товар не найден' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.productsService.remove(id);
   }
 }
