@@ -1,3 +1,4 @@
 export interface AuthUser {
-  sub: string;
+  sub: number;
+  role: string;
 }
