@@ -24,6 +24,7 @@
     "prisma:studio": "prisma studio",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed",
     "postinstall": "npm run prisma:generate"
   },
   "lint-staged": {
@@ -47,7 +48,8 @@
     "class-validator": "^0.15.1",
     "joi": "^18.2.9",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tsx": "^4.23.15"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
