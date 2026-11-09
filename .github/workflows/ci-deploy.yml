@@ -59,7 +59,7 @@ jobs:
             set -e
 
             echo "Starting backend deployment..."
-            cd /opt/interior-backend
+            cd /opt/interier-backend
 
             echo "Pulling latest changes..."
             git pull origin main
