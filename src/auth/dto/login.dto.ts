@@ -3,9 +3,9 @@ import { Transform } from 'class-transformer';
 import {
   IsDefined,
   IsEmail,
+  IsNotEmpty,
   IsString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
 import { normalizeString } from '@/common/transformers/normalize-string.transformer';
@@ -13,30 +13,25 @@ import { normalizeString } from '@/common/transformers/normalize-string.transfor
 export class LoginDto {
   @ApiProperty({
     example: 'admin@example.com',
-    description: 'Email администратора',
+    description: 'Email пользователя',
+    format: 'email',
     maxLength: 255,
   })
   @Transform(normalizeString)
   @IsDefined({ message: 'Email обязателен' })
-  @IsEmail({}, { message: 'Некорректный email' })
-  @MaxLength(255, {
-    message: 'Email не должен превышать 255 символов',
-  })
+  @IsString({ message: 'Email должен быть строкой' })
+  @IsEmail({}, { message: 'Укажите корректный email' })
+  @MaxLength(255, { message: 'Email не должен превышать 255 символов' })
   email!: string;
 
   @ApiProperty({
-    example: 'SecurePassword123!',
-    description: 'Пароль администратора',
+    description: 'Пароль пользователя',
+    format: 'password',
     minLength: 1,
-    maxLength: 255,
+    writeOnly: true,
   })
   @IsDefined({ message: 'Пароль обязателен' })
   @IsString({ message: 'Пароль должен быть строкой' })
-  @MinLength(8, {
-    message: 'Пароль должен содержать не менее 8 символов',
-  })
-  @MaxLength(255, {
-    message: 'Пароль не должен превышать 255 символов',
-  })
+  @IsNotEmpty({ message: 'Пароль не должен быть пустым' })
   password!: string;
 }
