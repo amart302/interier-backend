@@ -2,11 +2,15 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import type { AuthUser } from '@/common/types/auth-user.types';
+import type {
+  AccessTokenPayload,
+  AuthUser,
+} from '@/common/types/auth-user.types';
+import { ServiceDataResponse } from '@/common/types/service-response.types';
 import { PrismaService } from '@/prisma/prisma.service';
 
 import { LoginDto } from './dto/login.dto';
-import { AuthWithTokenResponse } from './types/auth.types';
+import type { AuthToken, CurrentUserData } from './types/auth.types';
 
 @Injectable()
 export class AuthService {
@@ -17,11 +21,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private async generateAccessToken(authUser: AuthUser): Promise<string> {
-    return await this.jwtService.signAsync(authUser);
+  private async generateAccessToken(
+    payload: AccessTokenPayload,
+  ): Promise<string> {
+    return this.jwtService.signAsync(payload);
   }
 
-  async login(dto: LoginDto): Promise<AuthWithTokenResponse> {
+  async login(dto: LoginDto): Promise<ServiceDataResponse<AuthToken>> {
     const { email, password } = dto;
 
     this.logger.log(`Sign-in started (email=${email})`);
@@ -59,7 +65,6 @@ export class AuthService {
 
     const accessToken = await this.generateAccessToken({
       sub: user.id,
-      role: user.role,
     });
 
     this.logger.log(`Sign-in completed successfully (userId=${user.id})`);
@@ -67,6 +72,19 @@ export class AuthService {
     return {
       message: 'Вход в систему выполнен успешно',
       data: { accessToken },
+    };
+  }
+
+  getMe(authUser: AuthUser): ServiceDataResponse<CurrentUserData> {
+    this.logger.log('Get user started');
+
+    const { sub, role } = authUser;
+
+    this.logger.log(`Get user completed successfully (userId=${sub})`);
+
+    return {
+      message: 'Данные пользователя получены',
+      data: { id: sub, role },
     };
   }
 }
