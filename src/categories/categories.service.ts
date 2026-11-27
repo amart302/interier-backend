@@ -32,7 +32,7 @@ export class CategoriesService {
 
     try {
       category = await this.prismaService.category.create({
-        data: dto,
+        data: { ...dto, isOutlet: dto.slug === 'utsenka' },
         select: categoryCardSelect,
       });
     } catch (error) {
@@ -91,7 +91,7 @@ export class CategoriesService {
     try {
       category = await this.prismaService.category.update({
         where: { id },
-        data: dto,
+        data: { ...dto, ...(dto.slug === 'utsenka' && { isOutlet: true }) },
         select: categoryCardSelect,
       });
     } catch (error) {

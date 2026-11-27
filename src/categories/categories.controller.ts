@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -21,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Auth } from '@/common/decorators/auth.decorator';
+import { ParseIdPipe } from '@/common/pipes/parse-id.pipe';
 
 import { CategoriesService } from './categories.service';
 import { categoryCardExample } from './docs/category.examples';
@@ -105,10 +105,7 @@ export class CategoriesController {
   @ApiConflictResponse({
     description: 'Категория с таким названием или slug уже существует',
   })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateCategoryDto,
-  ) {
+  update(@Param('id', ParseIdPipe) id: number, @Body() dto: UpdateCategoryDto) {
     return this.categoriesService.update(id, dto);
   }
 
@@ -133,7 +130,7 @@ export class CategoriesController {
   })
   @ApiBadRequestResponse({ description: 'Некорректный ID категории' })
   @ApiNotFoundResponse({ description: 'Категория не найдена' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIdPipe) id: number) {
     return this.categoriesService.remove(id);
   }
 }

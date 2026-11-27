@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDefined,
   IsInt,
   IsOptional,
@@ -11,12 +12,38 @@ import {
   MaxLength,
   Min,
   MinLength,
+  Validate,
   ValidateIf,
+  ValidatorConstraint,
+  type ValidatorConstraintInterface,
 } from 'class-validator';
 
 import { normalizeString } from '@/common/transformers/normalize-string.transformer';
 
+const MAX_PRICE = 2_147_483_647;
+
+@ValidatorConstraint({ name: 'productPrice' })
+class ProductPriceValidator implements ValidatorConstraintInterface {
+  validate(value: unknown): boolean {
+    return (
+      typeof value === 'number' &&
+      Number.isFinite(value) &&
+      value >= 0 &&
+      value <= MAX_PRICE &&
+      Number(value.toFixed(2)) === value
+    );
+  }
+}
+
 export class CreateProductDto {
+  @ApiPropertyOptional({
+    description: 'Скрыть товар в публичном каталоге',
+    default: false,
+  })
+  @ValidateIf((_object: unknown, value: unknown) => value !== undefined)
+  @IsBoolean({ message: 'Признак скрытия товара должен быть логическим' })
+  isHidden?: boolean;
+
   @ApiProperty({
     example: 'Люстра',
     description: 'Название товара',
@@ -78,17 +105,35 @@ export class CreateProductDto {
   imageUrls?: string[];
 
   @ApiPropertyOptional({
-    example: 15000,
-    description: 'Цена товара (целое число)',
+    example: 15000.5,
     nullable: true,
     minimum: 0,
-    maximum: 2147483647,
+    maximum: MAX_PRICE,
   })
   @IsOptional()
-  @IsInt({ message: 'Цена должна быть целым числом' })
-  @Min(0, { message: 'Цена не должна быть отрицательной' })
-  @Max(2147483647, { message: 'Цена не должна превышать 2147483647' })
+  @Validate(ProductPriceValidator, {
+    message: 'Цена должна быть от 0 до 2147483647 с точностью до копеек',
+  })
   price?: number | null;
+
+  @ApiPropertyOptional({
+    example: 18000,
+    nullable: true,
+    minimum: 0,
+    maximum: MAX_PRICE,
+  })
+  @IsOptional()
+  @Validate(ProductPriceValidator, {
+    message: 'Старая цена должна быть от 0 до 2147483647 с точностью до копеек',
+  })
+  oldPrice?: number | null;
+
+  @ApiPropertyOptional({ nullable: true, maxLength: 10000 })
+  @Transform(normalizeString)
+  @IsOptional()
+  @IsString({ message: 'Описание должно быть строкой' })
+  @MaxLength(10000, { message: 'Описание не должно превышать 10000 символов' })
+  description?: string | null;
 
   @ApiProperty({
     example: 1,

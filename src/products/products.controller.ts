@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -22,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Auth } from '@/common/decorators/auth.decorator';
+import { ParseIdPipe } from '@/common/pipes/parse-id.pipe';
 
 import {
   productCardExample,
@@ -41,7 +41,7 @@ export class ProductsController {
   @ApiOperation({
     summary: 'Получить список товаров',
     description:
-      'Поиск по названию без учёта регистра. Фильтры применяются совместно. Без фильтров возвращается страница всех товаров. subcategorySlug требует categorySlug. При отсутствии совпадений items — [], total и pages — 0.',
+      'Поиск по названию без учёта регистра. Фильтры применяются совместно. Без фильтров возвращается страница видимых товаров. subcategorySlug требует categorySlug. При отсутствии совпадений items — [], total и pages — 0.',
   })
   @ApiOkResponse({
     description: 'Товары успешно получены',
@@ -101,7 +101,7 @@ export class ProductsController {
   @ApiOperation({
     summary: 'Получить подробную информацию о товаре',
     description:
-      'Необязательные связи и значения могут быть null, attributes — пустым массивом. Decimal-поля характеристик сериализуются строками.',
+      'Скрытые товары и уценка недоступны. Необязательные связи и значения могут быть null, attributes — пустым массивом. Decimal-поля характеристик сериализуются строками.',
   })
   @ApiParam({
     name: 'id',
@@ -145,7 +145,7 @@ export class ProductsController {
       },
     },
   })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIdPipe) id: number) {
     return this.productsService.findOne(id);
   }
   @Post()
@@ -204,7 +204,7 @@ export class ProductsController {
   @ApiConflictResponse({
     description: 'Товар с таким URL источника уже существует',
   })
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProductDto) {
+  update(@Param('id', ParseIdPipe) id: number, @Body() dto: UpdateProductDto) {
     return this.productsService.update(id, dto);
   }
 
@@ -223,7 +223,7 @@ export class ProductsController {
   })
   @ApiBadRequestResponse({ description: 'Некорректные данные или ID товара' })
   @ApiNotFoundResponse({ description: 'Товар не найден' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIdPipe) id: number) {
     return this.productsService.remove(id);
   }
 }

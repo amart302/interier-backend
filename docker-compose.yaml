@@ -17,6 +17,13 @@ services:
       migrate:
         condition: service_completed_successfully
 
+    healthcheck:
+      test: ['CMD', 'node', '-e', 'fetch("http://127.0.0.1:" + (process.env.PORT || 3001) + "/health", { signal: AbortSignal.timeout(3000) }).then(r => { if (!r.ok) process.exitCode = 1; }).catch(() => { process.exitCode = 1; })']
+      interval: 10s
+      timeout: 4s
+      retries: 5
+      start_period: 20s
+
   migrate:
     build:
       context: .

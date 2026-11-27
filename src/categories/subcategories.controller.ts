@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -21,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 
 import { Auth } from '@/common/decorators/auth.decorator';
+import { ParseIdPipe } from '@/common/pipes/parse-id.pipe';
 
 import { subcategoryCardExample } from './docs/category.examples';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
@@ -141,7 +141,7 @@ export class SubcategoriesController {
   })
   update(
     @Param('categorySlug') categorySlug: string,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIdPipe) id: number,
     @Body() dto: UpdateSubcategoryDto,
   ) {
     return this.subcategoriesService.update(categorySlug, id, dto);
@@ -179,7 +179,7 @@ export class SubcategoriesController {
   })
   remove(
     @Param('categorySlug') categorySlug: string,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIdPipe) id: number,
   ) {
     return this.subcategoriesService.remove(categorySlug, id);
   }
