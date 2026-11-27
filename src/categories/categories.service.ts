@@ -66,7 +66,7 @@ export class CategoriesService {
     this.logger.log('Categories list lookup started');
 
     const categories = await this.prismaService.category.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       select: categoryCardSelect,
     });
 

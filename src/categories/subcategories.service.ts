@@ -34,7 +34,7 @@ export class SubcategoriesService {
       where: { slug: categorySlug },
       select: {
         subcategories: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: 'asc' },
           select: subcategoryCardSelect,
         },
       },

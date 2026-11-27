@@ -83,7 +83,7 @@ export class ProductsService {
         where,
         skip,
         take: limit,
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         select: productCardSelect,
       }),
       this.prismaService.product.count({ where }),
