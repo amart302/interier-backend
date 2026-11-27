@@ -3,6 +3,8 @@ export const productCardSelect = {
   name: true,
   imageUrls: true,
   price: true,
+  oldPrice: true,
+  description: true,
   packaging: {
     select: {
       quantityPerPackage: true,
@@ -47,4 +49,14 @@ export const productDetailsSelect = {
       },
     },
   },
+} as const;
+
+export const adminProductCardSelect = {
+  ...productCardSelect,
+  isHidden: true,
+} as const;
+
+export const adminProductDetailsSelect = {
+  ...productDetailsSelect,
+  isHidden: true,
 } as const;

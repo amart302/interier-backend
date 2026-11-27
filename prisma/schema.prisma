@@ -33,6 +33,7 @@ model Category {
   slug     String  @unique
   imageUrl String? @db.VarChar(2048)
 
+  isOutlet      Boolean       @default(false)
   subcategories Subcategory[]
   products      Product[]
 
@@ -56,6 +57,7 @@ model Subcategory {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  @@unique([categoryId, id])
   @@unique([categoryId, name])
   @@unique([categoryId, slug])
   @@map("subcategories")
@@ -67,8 +69,11 @@ model Product {
   sourceUrl String   @unique @db.VarChar(2048)
   imageUrls String[] @default([])
 
-  price Int?
-  brand String? @db.VarChar(255)
+  isHidden    Boolean  @default(false)
+  price       Decimal? @db.Decimal(12, 2)
+  oldPrice    Decimal? @db.Decimal(12, 2)
+  description String?
+  brand       String?  @db.VarChar(255)
 
   dimensions ProductDimensions?
   electrical ProductElectrical?
@@ -80,7 +85,7 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   subcategoryId Int?
-  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+  subcategory   Subcategory? @relation(fields: [categoryId, subcategoryId], references: [categoryId, id], onDelete: Cascade, onUpdate: Restrict)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)

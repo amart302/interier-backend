@@ -1,8 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import {
-  ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiServiceUnavailableResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -18,25 +18,25 @@ export class AppController {
   @Get('health')
   @ApiOperation({ summary: 'Проверка доступности API' })
   @ApiOkResponse({
-    description: 'API доступен. Подключение к базе данных не проверяется.',
+    description: 'API и база данных доступны.',
     schema: {
       example: {
         success: true,
-        message: 'Hello World!',
+        message: 'API и база данных доступны',
       },
     },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Внутренняя ошибка сервера',
+  @ApiServiceUnavailableResponse({
+    description: 'База данных недоступна',
     schema: {
       example: {
         success: false,
-        statusCode: 500,
+        statusCode: 503,
         message: 'Внутренняя ошибка сервера',
       },
     },
   })
-  healthCheck(): ServiceMessageResponse {
+  healthCheck(): Promise<ServiceMessageResponse> {
     return this.appService.healthCheck();
   }
 }
